@@ -1,5 +1,6 @@
 package com.brendan.game;
 
+import com.brendan.game.states.GameStateManager;
 import com.brendan.game.util.KeyHandler;
 import com.brendan.game.util.MouseHandler;
 
@@ -21,6 +22,8 @@ public class GamePanel extends JPanel implements Runnable {
     private MouseHandler mouse;
     private KeyHandler key;
 
+    private GameStateManager gsm;
+
     public GamePanel(int width, int height) {
         this.width = width;
         this.height = height;
@@ -30,12 +33,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void addNotify() {
-        super.notify();
+        super.addNotify();
 
         if(thread == null) {
             thread = new Thread(this, "GameThread");
             thread.start();
         }
+
     }
 
     public void init() {
@@ -45,10 +49,14 @@ public class GamePanel extends JPanel implements Runnable {
         g = (Graphics2D) img.getGraphics();
 
         mouse = new MouseHandler();
-        key = new KeyHandler();
+        key = new KeyHandler(this);
+
+        gsm = new GameStateManager();
     }
 
     public void run() {
+
+
         init();
 
         final double GAME_HERTZ = 60.0;
@@ -111,11 +119,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-
+        gsm.update();
     }
 
     public void input(MouseHandler mouse, KeyHandler key) {
-
+        gsm.input(mouse, key);
     }
 
     public void input() {
@@ -126,6 +134,7 @@ public class GamePanel extends JPanel implements Runnable {
         if(g != null) {
             g.setColor(new Color(66,134,244));
             g.fillRect(0,0, width, height);
+            gsm.render(g);
         }
     }
 
